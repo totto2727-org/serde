@@ -1,0 +1,15 @@
+import {
+  "moonbit-community/serde.mbt" @serde,
+  "moonbit-community/serde.mbt/json" @serde_json,
+}
+
+rule(
+  name: "community_derive",
+  command: "moonx moonbit-community/serde.mbt@0.3.1/derive $input",
+)
+
+dev_build(
+  rule: "community_derive",
+  input: "request.mbt",
+  output: "request_derive.mbt",
+)

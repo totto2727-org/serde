@@ -130,6 +130,9 @@ test "JSON text: parse and decode" (b : @bench.T) {
       b.keep(try! decode(input))
     })
   }
+  b.bench(name="community-serde", fn() {
+    b.keep(try! @community.from_string(fixture))
+  })
 }
 
 ///|

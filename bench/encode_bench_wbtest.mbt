@@ -38,6 +38,10 @@ test "ToJson: encode to JSON value" (b : @bench.T) {
 
 ///|
 test "ToJson: encode and stringify" (b : @bench.T) {
+  let community_request = @community.from_string(fixture)
   b.bench(name="manual", fn() { b.keep(encode_manual(expected).stringify()) })
   b.bench(name="serde", fn() { b.keep(ToJson::to_json(expected).stringify()) })
+  b.bench(name="community-serde", fn() {
+    b.keep(try! @community.to_string(community_request))
+  })
 }

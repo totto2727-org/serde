@@ -8,6 +8,14 @@ test "each decoder produces the complete expected output" {
 }
 
 ///|
+test "community Serde preserves the complete modeled JSON on a text round trip" {
+  let request = @community.from_string(fixture)
+  let output = @json.parse(@community.to_string(request))
+  assert_eq(output, ToJson::to_json(expected))
+  assert_eq((@json.from_json(output) : Request), expected)
+}
+
+///|
 test "each decoder rejects invalid required data" {
   let invalid = [
     "null",
@@ -28,6 +36,10 @@ test "each decoder rejects invalid required data" {
         Some(_) => fail("\{name} accepted invalid input: \{text}")
         None => ()
       }
+    }
+    match (Some(@community.from_string(text)) catch { _ => None }) {
+      Some(_) => fail("community-serde accepted invalid input: \{text}")
+      None => ()
     }
   }
 }

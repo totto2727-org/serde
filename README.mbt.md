@@ -139,6 +139,8 @@ For manual generation and command-line options, see the [`model_gen` README](htt
 
 See the [Rust Serde and garde feature matrix](docs/upstream-feature-matrix.md) for supported features, differences, and the source versions used for comparison.
 
+See the [Serde and Garde benchmark results](bench/README.md#recorded-results) for measurements with and without JSON parsing.
+
 For repository maintenance instructions, see [AGENTS.md](https://github.com/totto2727-org/model/blob/main/AGENTS.md).
 
 ## License

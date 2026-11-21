@@ -9,6 +9,7 @@ _build/
 /tmp/
 /.archify/
 *.generated.mbt
+/bench/community/request_derive.mbt
 !/src/test/serde/serde.generated.mbt
 !/src/test/garde/serde.generated.mbt
 !/src/test/garde/codec_model.generated.mbt
