@@ -1,27 +1,27 @@
 ///|
-#custom.serde
-#custom.garde
+#model.serde
+#model.garde
 pub(all) struct Address {
-  #custom.garde(length(equal="2"))
+  #model.garde(length(equal="2"))
   code : String
 }
 
 ///|
-#custom.serde
-#custom.garde
+#model.serde
+#model.garde
 pub(all) struct Account {
-  #custom.serde(rename="displayName")
-  #custom.garde(length(min="3"), custom(garde_value))
+  #model.serde(rename="displayName")
+  #model.garde(length(min="3"), custom(garde_value))
   name : String
-  #custom.garde(range(min="-1", max="10"))
+  #model.garde(range(min="-1", max="10"))
   level : Int32
-  #custom.garde(required, length(min="2"))
+  #model.garde(required, length(min="2"))
   contact : String?
-  #custom.garde(dive)
+  #model.garde(dive)
   address : Address?
-  #custom.garde(length(min="1"), inner(dive))
+  #model.garde(length(min="1"), inner(dive))
   locations : Array[Address]
-  #custom.garde(skip)
+  #model.garde(skip)
   notes : String
 }
 
@@ -35,16 +35,16 @@ fn garde_value(name : String) -> String? {
 }
 
 ///|
-#custom.garde(allow_unvalidated)
+#model.garde(allow_unvalidated)
 pub(all) struct Queue {
-  #custom.garde(inner(inner(required, range(min="0"))))
+  #model.garde(inner(inner(required, range(min="0"))))
   batches : FixedArray[ReadOnlyArray[Int32?]]
   name : String
 }
 
 ///|
-#custom.serde
-#custom.garde(field(index="0", ascii, alphanumeric, prefix("A")))
+#model.serde
+#model.garde(field(index="0", ascii, alphanumeric, prefix("A")))
 pub(all) struct Code(String)
 
 ///|
@@ -54,43 +54,43 @@ pub impl @garde.Length for Code with fn garde_length(self) {
 }
 
 ///|
-#custom.serde
-#custom.garde(field(index="0", dive), field(index="1", required))
+#model.serde
+#model.garde(field(index="0", dive), field(index="1", required))
 pub struct Pair(Code, String?)
 
 ///|
-#custom.serde
-#custom.garde
+#model.serde
+#model.garde
 pub(all) struct Batch[T, U] {
-  #custom.garde(inner(dive))
+  #model.garde(inner(dive))
   items : Array[T]
-  #custom.garde(skip)
+  #model.garde(skip)
   metadata : U
 }
 
 ///|
-#custom.serde(tag="kind", content="data", rename_all="snake_case")
-#custom.garde
+#model.serde(tag="kind", content="data", rename_all="snake_case")
+#model.garde
 pub enum Entry[T] {
   Empty
-  #custom.garde(field(index="0", dive), field(index="1", skip))
+  #model.garde(field(index="0", dive), field(index="1", skip))
   CodeEntry(T, Int32)
-  #custom.garde(field(name="label", contains("\""), suffix("\u0021")))
+  #model.garde(field(name="label", contains("\""), suffix("\u0021")))
   Named(label~ : String)
-  #custom.garde(skip)
+  #model.garde(skip)
   Unchecked(String)
 }
 
 ///|
-#custom.garde(field(index="0", length(min="2")))
+#model.garde(field(index="0", length(min="2")))
 pub(all) struct Sized[T](T)
 
 ///|
-#custom.garde(bounds(T, [Length]), field(index="0", dive))
+#model.garde(bounds(T, [Length]), field(index="0", dive))
 pub(all) struct NestedSized[T](Sized[T])
 
 ///|
-#custom.garde(field(index="0", length(min="2"), dive))
+#model.garde(field(index="0", length(min="2"), dive))
 pub(all) struct Measured[T](T)
 
 ///|
@@ -99,10 +99,10 @@ pub(all) struct Policy {
 }
 
 ///|
-#custom.serde
-#custom.garde(context=Policy)
+#model.serde
+#model.garde(context=Policy)
 pub(all) struct Allocation {
-  #custom.garde(range(min="0"), custom_with(check_count))
+  #model.garde(range(min="0"), custom_with(check_count))
   count : Int32
 }
 
@@ -116,48 +116,48 @@ fn check_count(count : Int32, policy : Policy) -> String? {
 }
 
 ///|
-#custom.serde
-#custom.garde(context=Policy)
+#model.serde
+#model.garde(context=Policy)
 pub(all) struct Request {
-  #custom.garde(inner(dive_with))
+  #model.garde(inner(dive_with))
   allocations : Array[Allocation]
 }
 
 ///|
-#custom.serde
-#custom.garde
+#model.serde
+#model.garde
 pub(all) struct Confirmation {
-  #custom.serde(rename="repeatedCode")
-  #custom.garde(matches(code))
+  #model.serde(rename="repeatedCode")
+  #model.garde(matches(code))
   repeated : String?
-  #custom.garde(pattern("^ID-[0-9]+\\.$"))
+  #model.garde(pattern("^ID-[0-9]+\\.$"))
   code : String?
 }
 
 ///|
-#custom.garde
+#model.garde
 pub(all) struct Same[T] {
-  #custom.garde(matches(original))
+  #model.garde(matches(original))
   repeated : T
-  #custom.garde(skip)
+  #model.garde(skip)
   original : T
 }
 
 ///|
-#custom.serde
-#custom.garde(validate_only)
+#model.serde
+#model.garde(validate_only)
 pub(all) struct ContactDetails {
-  #custom.garde(email)
+  #model.garde(email)
   email : String
-  #custom.garde(url)
+  #model.garde(url)
   website : String
-  #custom.garde(inner(ip))
+  #model.garde(inner(ip))
   addresses : Array[String]
-  #custom.garde(ipv4)
+  #model.garde(ipv4)
   v4 : String?
-  #custom.garde(ipv6)
+  #model.garde(ipv6)
   v6 : String?
-  #custom.garde(phone_number)
+  #model.garde(phone_number)
   phone : String?
 }
 
@@ -165,7 +165,7 @@ pub(all) struct ContactDetails {
 const MINIMUM_WIDE : Int64 = 9007199254740993L
 
 ///|
-#custom.garde(transparent, field(index="0", pattern(is_uppercase_code)))
+#model.garde(transparent, field(index="0", pattern(is_uppercase_code)))
 pub(all) struct ProductCode(String)
 
 ///|
@@ -174,19 +174,19 @@ fn is_uppercase_code(value : String) -> Bool {
 }
 
 ///|
-#custom.garde
+#model.garde
 pub(all) struct OrderChecks {
-  #custom.garde(skip)
+  #model.garde(skip)
   strict : Bool
-  #custom.garde(when(is_strict, required, dive))
+  #model.garde(when(is_strict, required, dive))
   product : ProductCode?
-  #custom.garde(range(min=MINIMUM_WIDE))
+  #model.garde(range(min=MINIMUM_WIDE))
   quantity : Int64
-  #custom.garde(range(min="0.5", max="2.5"))
+  #model.garde(range(min="0.5", max="2.5"))
   multiplier : Double
-  #custom.garde(skip)
+  #model.garde(skip)
   policy : Policy
-  #custom.garde(inner(dive_with(policy)))
+  #model.garde(inner(dive_with(policy)))
   allocations : Array[Allocation]
 }
 
@@ -196,25 +196,25 @@ fn is_strict(value : OrderChecks) -> Bool {
 }
 
 ///|
-#custom.garde
+#model.garde
 pub(all) struct NumericRanges {
-  #custom.garde(range(min="9007199254740993", max="9007199254740994"))
+  #model.garde(range(min="9007199254740993", max="9007199254740994"))
   wide : Int64
-  #custom.garde(range(min="18446744073709551614", max="18446744073709551615"))
+  #model.garde(range(min="18446744073709551614", max="18446744073709551615"))
   unsigned : UInt64
-  #custom.garde(range(equal="1000000000000000000000000000001N"))
+  #model.garde(range(equal="1000000000000000000000000000001N"))
   huge : @bigint.BigInt
-  #custom.garde(range(min="1.00000002", max="1.00000001"))
+  #model.garde(range(min="1.00000002", max="1.00000001"))
   single : Float
-  #custom.garde(range(min="-0.125F", max="2_000.0"))
+  #model.garde(range(min="-0.125F", max="2_000.0"))
   double : Double
-  #custom.garde(range(min="0x10L", max="0x20"))
+  #model.garde(range(min="0x10L", max="0x20"))
   base16 : Int32
 }
 
 ///|
-#custom.garde
+#model.garde
 pub(all) struct ReversedRange {
-  #custom.garde(range(min="9007199254740993", max="9007199254740992"))
+  #model.garde(range(min="9007199254740993", max="9007199254740992"))
   wide : Int64
 }

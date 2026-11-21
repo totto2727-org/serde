@@ -1,6 +1,6 @@
 # Garde attributes
 
-Use `#custom.garde` to generate validators for MoonBit values.
+Use `#model.garde` to generate validators for MoonBit values.
 Run validation explicitly on decoded or manually constructed values.
 
 ## Usage
@@ -10,11 +10,11 @@ Garde generates the `EndpointDecoded` type with a typed URL field.
 
 ```mbt nocheck
 ///|
-#custom.serde
-#custom.garde
+#model.serde
+#model.garde
 pub(all) struct Endpoint {
-  #custom.serde(rename="endpointUrl")
-  #custom.garde(url)
+  #model.serde(rename="endpointUrl")
+  #model.garde(url)
   url : String
 }
 ```
@@ -62,8 +62,8 @@ For the JSON example above, also import `moonbitlang/core/json` and `totto2727/m
 
 ## Typed model conversion
 
-On a record without a validation context, `#custom.garde` generates `Validate` and a `ModelDecoded` type. The original record remains the wire type.
-Use `#custom.garde(validate_only)` to skip conversions. Contextual records, tuple structs, and enums generate validation only.
+On a record without a validation context, `#model.garde` generates `Validate` and a `ModelDecoded` type. The original record remains the wire type.
+Use `#model.garde(validate_only)` to skip conversions. Contextual records, tuple structs, and enums generate validation only.
 
 - `to_decoded()` validates before converting. `to_encoded()` converts back and validates the result.
 - The decoded constructor takes typed fields without validating them. Use labels when it takes two or more arguments.
@@ -82,7 +82,7 @@ Garde follows the explicit validation model of [Rust garde](https://docs.rs/gard
 Each example shows an annotated model, the generated MoonBit code or the relevant excerpt, and behavior that is not visible from the code alone.
 The examples use the standard MoonBit formatting.
 
-### `#custom.garde`, `required`, `length`, `range`, and `skip`
+### `#model.garde`, `required`, `length`, `range`, and `skip`
 
 The type marker generates an implementation of `@garde.Validate`.
 By default, a field must have a validation rule or `skip`.
@@ -90,15 +90,15 @@ Use a non-optional type if absence should fail during decoding. The following ex
 
 ```mbt nocheck
 ///|
-#custom.garde
+#model.garde
 pub struct Contact {
-  #custom.garde(length(min="1"))
+  #model.garde(length(min="1"))
   label : String
-  #custom.garde(required, length(min="2", max="80"))
+  #model.garde(required, length(min="2", max="80"))
   name : String?
-  #custom.garde(range(min="0", max="120"))
+  #model.garde(range(min="0", max="120"))
   age : Int32
-  #custom.garde(skip)
+  #model.garde(skip)
   notes : String
 }
 ```
@@ -158,13 +158,13 @@ A function passed to `custom` receives the field value and returns `None` on suc
 
 ```mbt nocheck
 ///|
-#custom.garde
+#model.garde
 pub struct Credentials {
-  #custom.garde(ascii, alphanumeric)
+  #model.garde(ascii, alphanumeric)
   username : String
-  #custom.garde(contains("-"), prefix("ref-"), suffix("-ok"))
+  #model.garde(contains("-"), prefix("ref-"), suffix("-ok"))
   reference : String
-  #custom.garde(custom(check_code))
+  #model.garde(custom(check_code))
   code : String
 }
 
@@ -215,19 +215,19 @@ Apply these rules to strings. For an optional string, validation skips `None` un
 
 ```mbt nocheck
 ///|
-#custom.garde
+#model.garde
 struct ContactFormats {
-  #custom.garde(email)
+  #model.garde(email)
   email : String
-  #custom.garde(url)
+  #model.garde(url)
   website : String
-  #custom.garde(ip)
+  #model.garde(ip)
   address : String
-  #custom.garde(ipv4)
+  #model.garde(ipv4)
   address_v4 : String
-  #custom.garde(ipv6)
+  #model.garde(ipv6)
   address_v6 : String
-  #custom.garde(phone_number)
+  #model.garde(phone_number)
   phone : String
 }
 ```
@@ -307,9 +307,9 @@ The generator rejects malformed expressions. For an optional string, the rule ru
 
 ```mbt nocheck
 ///|
-#custom.garde
+#model.garde
 pub struct Reference {
-  #custom.garde(pattern("^ID-[0-9]+\\.$"))
+  #model.garde(pattern("^ID-[0-9]+\\.$"))
   code : String
 }
 ```
@@ -332,11 +332,11 @@ The rule compares whole values. For two optional fields, `None` matches `None`, 
 
 ```mbt nocheck
 ///|
-#custom.garde
+#model.garde
 pub struct Confirmation {
-  #custom.garde(skip)
+  #model.garde(skip)
   code : String
-  #custom.garde(matches(code))
+  #model.garde(matches(code))
   repeated : String
 }
 ```
@@ -359,11 +359,11 @@ Use `inner` to apply one or more rules to each item of an `Array`, `ReadOnlyArra
 
 ```mbt nocheck
 ///|
-#custom.garde(allow_unvalidated)
+#model.garde(allow_unvalidated)
 pub struct Directory {
-  #custom.garde(dive)
+  #model.garde(dive)
   owner : Contact
-  #custom.garde(inner(dive))
+  #model.garde(inner(dive))
   contacts : Array[Contact]
   description : String
 }
@@ -401,18 +401,18 @@ On an enum, put the type marker on the enum and the selectors on the variants.
 
 ```mbt nocheck
 ///|
-#custom.garde(field(index="0", ascii))
+#model.garde(field(index="0", ascii))
 pub struct Id(String)
 
 ///|
-#custom.garde
+#model.garde
 pub enum Update[T] {
   NoChange
-  #custom.garde(field(index="0", dive))
+  #model.garde(field(index="0", dive))
   Replace(T)
-  #custom.garde(field(name="label", length(min="1")))
+  #model.garde(field(name="label", length(min="1")))
   Rename(label~ : String)
-  #custom.garde(skip)
+  #model.garde(skip)
   Legacy(String)
 }
 ```
@@ -468,11 +468,11 @@ Unused or skipped type parameters need no bound.
 
 ```mbt nocheck
 ///|
-#custom.garde(field(index="0", length(min="2")))
+#model.garde(field(index="0", length(min="2")))
 pub struct Sized[T](T)
 
 ///|
-#custom.garde(bounds(T, [Length]), field(index="0", dive))
+#model.garde(bounds(T, [Length]), field(index="0", dive))
 pub struct Envelope[T](Sized[T])
 ```
 
@@ -501,9 +501,9 @@ pub struct Policy {
 }
 
 ///|
-#custom.garde(context=Policy)
+#model.garde(context=Policy)
 pub struct Allocation {
-  #custom.garde(custom_with(check_count))
+  #model.garde(custom_with(check_count))
   count : Int32
 }
 
@@ -517,9 +517,9 @@ fn check_count(count : Int32, policy : Policy) -> String? {
 }
 
 ///|
-#custom.garde(context=Policy)
+#model.garde(context=Policy)
 pub struct Request {
-  #custom.garde(inner(dive_with))
+  #model.garde(inner(dive_with))
   allocations : Array[Allocation]
 }
 ```
@@ -574,15 +574,15 @@ Use `transparent` on a record or tuple struct with exactly one validated field. 
 
 ```mbt nocheck
 ///|
-#custom.garde(transparent, field(index="0", length(min="3")))
+#model.garde(transparent, field(index="0", length(min="3")))
 struct Tag(String)
 
 ///|
-#custom.garde
+#model.garde
 struct PublishRequest {
-  #custom.garde(skip)
+  #model.garde(skip)
   published : Bool
-  #custom.garde(when(is_published, required, dive))
+  #model.garde(when(is_published, required, dive))
   tag : Tag?
 }
 

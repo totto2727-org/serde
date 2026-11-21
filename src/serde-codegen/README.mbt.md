@@ -1,6 +1,6 @@
 # Serde attributes
 
-Use `#custom.serde` to generate `ToJson` and `@json.FromJson` implementations.
+Use `#model.serde` to generate `ToJson` and `@json.FromJson` implementations.
 These traits control how a MoonBit type reads and writes JSON.
 
 ## Usage
@@ -32,18 +32,18 @@ Each section shows a minimal annotated model, the generated MoonBit code or the 
 The examples use the standard MoonBit formatting.
 Generated bindings for named fields use the MoonBit field name, not the JSON key.
 
-### `#custom.serde`: newtypes and tuple structs
+### `#model.serde`: newtypes and tuple structs
 
 A newtype reads and writes its inner value. A tuple struct uses a fixed-length JSON array in declaration order.
 An optional tuple element still needs a slot and writes `null` for `None`.
 
 ```mbt nocheck
 ///|
-#custom.serde
+#model.serde
 struct Id(Int32)
 
 ///|
-#custom.serde
+#model.serde
 struct Point(Int32, Int32)
 ```
 
@@ -86,7 +86,7 @@ Use `decode_only` for a model that only reads JSON. Its fields do not need to im
 
 ```mbt nocheck
 ///|
-#custom.serde(decode_only)
+#model.serde(decode_only)
 struct InputId(Int32)
 ```
 
@@ -104,7 +104,7 @@ pub impl @json.FromJson for InputId with fn from_json(value, path) {
 
 ```mbt nocheck
 ///|
-#custom.serde(encode_only)
+#model.serde(encode_only)
 struct OutputId(Int32)
 ```
 
@@ -128,18 +128,18 @@ This record shows how the options in the sections below work together.
 
 ```mbt nocheck
 ///|
-#custom.serde(rename_all="camelCase", deny_unknown_fields)
+#model.serde(rename_all="camelCase", deny_unknown_fields)
 struct Profile {
   display_name : String
-  #custom.serde(rename="email", aliases=["mail"])
+  #model.serde(rename="email", aliases=["mail"])
   address : String
-  #custom.serde(path=["meta", "status"])
+  #model.serde(path=["meta", "status"])
   status : String
-  #custom.serde(default)
+  #model.serde(default)
   count : Int32
-  #custom.serde(skip)
+  #model.serde(skip)
   cache : Int32
-  #custom.serde(skip_serializing_if="Option::is_none")
+  #model.serde(skip_serializing_if="Option::is_none")
   locale : String?
 }
 ```
@@ -395,10 +395,10 @@ This model reads `{ "label": "desk", "color": "blue" }` and writes the same obje
 
 ```mbt nocheck
 ///|
-#custom.serde
+#model.serde
 pub struct WithExtras {
   label : String
-  #custom.serde(flatten)
+  #model.serde(flatten)
   extra : Map[String, Json]
 }
 ```
@@ -444,9 +444,9 @@ fn decode_count(
 }
 
 ///|
-#custom.serde
+#model.serde
 pub struct Count {
-  #custom.serde(serialize_with="encode_count", deserialize_with="decode_count")
+  #model.serde(serialize_with="encode_count", deserialize_with="decode_count")
   count : Int32
 }
 ```
@@ -491,9 +491,9 @@ fn Wire::deserialize(
 }
 
 ///|
-#custom.serde
+#model.serde
 priv struct Packet {
-  #custom.serde(codec="Wire")
+  #model.serde(codec="Wire")
   id : Wire
 }
 ```
@@ -517,13 +517,13 @@ The field type does not need to implement the JSON traits in the directions prov
 
 ```mbt nocheck
 ///|
-#custom.serde
+#model.serde
 struct JobSettings {
-  #custom.serde(skip_serializing)
+  #model.serde(skip_serializing)
   token : String
-  #custom.serde(skip_deserializing)
+  #model.serde(skip_deserializing)
   retries : Int32
-  #custom.serde(default="normal_priority", skip_serializing_if="is_normal_priority")
+  #model.serde(default="normal_priority", skip_serializing_if="is_normal_priority")
   priority : Int32
 }
 
@@ -579,10 +579,10 @@ With no representation option, a unit variant writes its tag as a JSON string. A
 
 ```mbt nocheck
 ///|
-#custom.serde
+#model.serde
 pub enum External {
   Idle
-  #custom.serde(rename="message")
+  #model.serde(rename="message")
   Text(String)
 }
 ```
@@ -608,7 +608,7 @@ pub impl ToJson for External with fn to_json(self) {
 
 ```mbt nocheck
 ///|
-#custom.serde(tag="type", rename_all="snake_case")
+#model.serde(tag="type", rename_all="snake_case")
 pub enum Internal {
   Idle
   NewMessage(text~ : String)
@@ -631,15 +631,15 @@ For example, `{ "type": "Read", "text": "hello" }` decodes as `Read` with `kind`
 
 ```mbt nocheck
 ///|
-#custom.serde(decode_only, tag="type")
+#model.serde(decode_only, tag="type")
 pub enum InternalInput {
   Read(InternalData)
 }
 
 ///|
-#custom.serde(decode_only, deny_unknown_fields)
+#model.serde(decode_only, deny_unknown_fields)
 pub struct InternalData {
-  #custom.serde(rename="type")
+  #model.serde(rename="type")
   kind : String
   text : String
 }
@@ -657,7 +657,7 @@ Combine `tag="type"` with `content="data"` to put the payload under a separate k
 
 ```mbt nocheck
 ///|
-#custom.serde(tag="type", content="data")
+#model.serde(tag="type", content="data")
 pub enum Adjacent {
   Idle
   Text(String)
@@ -682,7 +682,7 @@ A unit variant writes `null`.
 
 ```mbt nocheck
 ///|
-#custom.serde(untagged)
+#model.serde(untagged)
 pub enum Untagged {
   Text(String)
   Count(Int32)
@@ -709,7 +709,7 @@ The generator adds `ToJson` and `@json.FromJson` bounds for the necessary type p
 
 ```mbt nocheck
 ///|
-#custom.serde
+#model.serde
 pub struct Box[T](T)
 ```
 

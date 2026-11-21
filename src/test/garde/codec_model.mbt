@@ -1,30 +1,30 @@
 ///|
-#custom.serde
-#custom.garde
+#model.serde
+#model.garde
 pub(all) struct Endpoint[T] {
-  #custom.serde(rename="endpointUrl")
-  #custom.garde(url)
+  #model.serde(rename="endpointUrl")
+  #model.garde(url)
   url : String
-  #custom.garde(ipv4)
+  #model.garde(ipv4)
   allowed_ip : String?
-  #custom.garde(phone_number)
+  #model.garde(phone_number)
   phone : String?
-  #custom.garde(length(min="1"))
+  #model.garde(length(min="1"))
   name : String
-  #custom.garde(skip)
+  #model.garde(skip)
   metadata : T
 }
 
 ///|
-#custom.serde(encode_only)
-#custom.garde
+#model.serde(encode_only)
+#model.garde
 pub(all) struct Tagged[T, U] {
-  #custom.garde(skip)
+  #model.garde(skip)
   tag : T
-  #custom.serde(skip)
-  #custom.garde(matches(original))
+  #model.serde(skip)
+  #model.garde(matches(original))
   repeated : U
-  #custom.serde(skip)
-  #custom.garde(skip)
+  #model.serde(skip)
+  #model.garde(skip)
   original : U
 }

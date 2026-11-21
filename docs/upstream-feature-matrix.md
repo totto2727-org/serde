@@ -32,7 +32,7 @@ For MoonBit syntax and examples, see [Serde attributes](../src/serde-codegen/REA
 
 | Rust Serde feature | MoonBit status | MoonBit behavior |
 | --- | --- | --- |
-| Derive or implement `Serialize` and `Deserialize` separately | Supported | `#custom.serde` generates `ToJson` and `@json.FromJson`. Use `encode_only` or `decode_only` to generate one direction. Implement the standard traits by hand when necessary. |
+| Derive or implement `Serialize` and `Deserialize` separately | Supported | `#model.serde` generates `ToJson` and `@json.FromJson`. Use `encode_only` or `decode_only` to generate one direction. Implement the standard traits by hand when necessary. |
 | Struct, tuple struct, newtype, enum, and generic models | Supported | Supports named record fields, positional tuples, enum unit and payload variants, and inferred generic constraints. One-field tuple structs use the inner JSON value. |
 | Primitive and collection codecs, typed numeric kinds, bytes, and map keys | Partial | Fields use MoonBit's standard JSON traits or custom hooks. Values must have a JSON representation. JSON objects have string keys, and JSON numbers do not carry Rust's integer and float type distinctions. |
 | `Serializer`, `Deserializer`, `Visitor`, and custom data formats | Not provided | Codecs work with a `Json` tree, not a stream or a format-independent visitor. Parse and print JSON with the standard library. |
@@ -109,7 +109,7 @@ For MoonBit syntax and examples, see [Garde attributes](../src/garde/README.mbt.
 
 | Rust garde feature | MoonBit status | MoonBit behavior |
 | --- | --- | --- |
-| Derive or implement `Validate` for structs and enums | Supported | `#custom.garde` generates validation for records, tuple structs, and enums. Hand-written collectors can report at a field, index, or model path. |
+| Derive or implement `Validate` for structs and enums | Supported | `#model.garde` generates validation for records, tuple structs, and enums. Hand-written collectors can report at a field, index, or model path. |
 | Newtype `transparent` validation | Supported | For a record or tuple struct with one validated field, keep the wrapper's path instead of appending that field or index. |
 | Generic models and nested bounds | Partial | Infers relevant bounds for direct uses of type parameters. Use `bounds` for supported explicit traits such as `Length`, `Validate`, and `Eq`. |
 | `Validate::Context` and access to `self` or context in rules | Partial | `context=Type` generates `validate_with` and `collect_with` instead of a context-associated `Validate` implementation. Named callbacks can receive context, but bounds cannot use context expressions. |

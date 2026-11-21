@@ -156,7 +156,7 @@ fn settings(
         }
         selectors[key] = field_rules(rules, at)
       }
-      _ => fail(at, "unknown, invalid, or repeated #custom.garde option")
+      _ => fail(at, "unknown, invalid, or repeated #model.garde option")
     }
   }
   { allow_unvalidated, transparent, codec, context, bounds, selectors, }
@@ -210,7 +210,7 @@ fn record_body(
       None if !opts.allow_unvalidated =>
         fail(
           Show::to_string(field.loc),
-          "field needs a garde rule or #custom.garde(skip)",
+          "field needs a garde rule or #model.garde(skip)",
         )
       None => ()
       Some((at, props)) => {
@@ -385,13 +385,13 @@ fn emit_declaration(
       Record(fields~, ..) =>
         for field in fields {
           if options(field.attrs) is Some((at, _)) {
-            fail(at, "field #custom.garde requires #custom.garde on its struct")
+            fail(at, "field #model.garde requires #model.garde on its struct")
           }
         }
       Variant(variants) =>
         for variant in variants {
           if options(variant.attrs) is Some((at, _)) {
-            fail(at, "variant #custom.garde requires #custom.garde on its enum")
+            fail(at, "variant #model.garde requires #model.garde on its enum")
           }
         }
       _ => ()
@@ -410,7 +410,7 @@ fn emit_declaration(
     .map(param => {
       guard param.name is Some(name) else {
         raise GenerateError(
-          "\{param.loc}: #custom.garde requires a named type parameter",
+          "\{param.loc}: #model.garde requires a named type parameter",
         )
       }
       name
@@ -456,7 +456,7 @@ fn emit_declaration(
     }
     _ =>
       raise GenerateError(
-        "\{at}: #custom.garde supports record structs, tuple structs, and enums",
+        "\{at}: #model.garde supports record structs, tuple structs, and enums",
       )
   }
   let quantifiers = render_quantifiers(params, bounds)

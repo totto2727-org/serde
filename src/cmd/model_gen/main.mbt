@@ -43,10 +43,10 @@ fn generate(inputs : ReadOnlyArray[String], output : String) -> Unit raise {
   }
   // Filter on the contiguous lexer token. Only the AST confirms an attribute.
   let codecs = @serde_codegen.generate_many(
-    sources.filter(source => source.1.contains("#custom.serde")),
+    sources.filter(source => source.1.contains("#model.serde")),
   )
   let validation = @garde_codegen.generate_many(
-    sources.filter(source => source.1.contains("#custom.garde")),
+    sources.filter(source => source.1.contains("#model.garde")),
   )
   let validation = validation
     .strip_prefix(@garde_codegen.GENERATED_HEADER + "\n")

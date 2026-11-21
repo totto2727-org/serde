@@ -1,7 +1,7 @@
 # Model for MoonBit
 
 Model provides two packages: Serde for JSON codecs and Garde for validation and typed model conversion.
-Add `#custom.serde` to a type to control how it reads and writes JSON.
+Add `#model.serde` to a type to control how it reads and writes JSON.
 
 This project is inspired by Rust's [Serde](https://serde.rs/) for serialization and [garde](https://docs.rs/garde/latest/garde/) for validation.
 
@@ -11,9 +11,9 @@ After [setup](#setup), define the JSON model in `src/models/endpoint.mbt`.
 
 ```mbt nocheck
 ///|
-#custom.serde
+#model.serde
 pub(all) struct Endpoint {
-  #custom.serde(rename="endpointUrl")
+  #model.serde(rename="endpointUrl")
   url : String
 }
 ```
@@ -130,8 +130,8 @@ See MoonBit's [package configuration](https://github.com/moonbitlang/moonbit-doc
 Use the Mooncakes version selector to read the documentation for the version you installed.
 
 - [Serde API](https://mooncakes.io/docs/totto2727/model/serde): Runtime helpers used by generated JSON codecs.
-- [Serde attributes](https://mooncakes.io/docs/totto2727/model/serde-codegen): `#custom.serde` examples and generated codec excerpts.
-- [Garde API and attributes](https://mooncakes.io/docs/totto2727/model/garde): Validation types, `#custom.garde` examples, and generated validator excerpts.
+- [Serde attributes](https://mooncakes.io/docs/totto2727/model/serde-codegen): `#model.serde` examples and generated codec excerpts.
+- [Garde API and attributes](https://mooncakes.io/docs/totto2727/model/garde): Validation types, `#model.garde` examples, and generated validator excerpts.
 
 For manual generation and command-line options, see the [`model_gen` README](https://github.com/totto2727-org/model/tree/main/src/cmd/model_gen).
 

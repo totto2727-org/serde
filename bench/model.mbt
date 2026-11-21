@@ -1,5 +1,5 @@
 ///|
-#custom.serde(rename_all="camelCase")
+#model.serde(rename_all="camelCase")
 #derive(Eq, Debug)
 struct Request {
   request_id : String
@@ -11,7 +11,7 @@ struct Request {
 }
 
 ///|
-#custom.serde
+#model.serde
 #derive(Eq, Debug)
 struct User {
   name : String
@@ -22,14 +22,14 @@ struct User {
 }
 
 ///|
-#custom.serde
+#model.serde
 #derive(Eq, Debug)
 struct Metadata {
   tags : Array[String]
 }
 
 ///|
-#custom.serde
+#model.serde
 #derive(Eq, Debug)
 struct Project {
   id : String
@@ -37,7 +37,7 @@ struct Project {
 }
 
 ///|
-#custom.serde(rename_all="camelCase")
+#model.serde(rename_all="camelCase")
 #derive(Eq, Debug)
 struct Metrics {
   latency_ms : Double
@@ -45,7 +45,7 @@ struct Metrics {
 }
 
 ///|
-#custom.serde
+#model.serde
 #derive(Eq, Debug)
 struct Payload {
   title : String

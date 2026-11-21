@@ -11,29 +11,29 @@ fn serde_options(
   let mut result = None
   for attr in attrs {
     let props = match attr.parsed {
-      Some(Ident({ qual: Some("custom"), name: "serde", })) => @list.List([])
-      Some(Apply({ qual: Some("custom"), name: "serde", }, props)) => props
-      None if attr.raw.strip_prefix("#custom.serde") is Some(payload) &&
+      Some(Ident({ qual: Some("model"), name: "serde", })) => @list.List([])
+      Some(Apply({ qual: Some("model"), name: "serde", }, props)) => props
+      None if attr.raw.strip_prefix("#model.serde") is Some(payload) &&
         payload.trim_start().has_prefix("(") =>
-        raise GenerateError("\{attr.loc}: malformed #custom.serde attribute")
+        raise GenerateError("\{attr.loc}: malformed #model.serde attribute")
       _ => continue
     }
     let context = Show::to_string(attr.loc)
     if result is Some(_) {
-      serde_error(context, "repeated #custom.serde attribute")
+      serde_error(context, "repeated #model.serde attribute")
     }
     let options : Map[String, @attribute.Expr] = Map([])
     for prop in props {
       let (key, value) = match prop {
         Labeled(key, value) => (key, value)
         Expr(Ident({ qual: None, name, })) => (name, Bool(true))
-        _ => raise GenerateError("\{context}: invalid #custom.serde option")
+        _ => raise GenerateError("\{context}: invalid #model.serde option")
       }
       if !allowed.contains(key) {
-        serde_error(context, "unknown #custom.serde option: \{key}")
+        serde_error(context, "unknown #model.serde option: \{key}")
       }
       if options.contains(key) {
-        serde_error(context, "repeated #custom.serde option: \{key}")
+        serde_error(context, "repeated #model.serde option: \{key}")
       }
       options[key] = value
     }
@@ -65,12 +65,12 @@ fn decode_attribute_string(
   let value = @json.parse(quoted[:]) catch {
     _ =>
       raise GenerateError(
-        "\{context}: use JSON-compatible string escapes in #custom.serde",
+        "\{context}: use JSON-compatible string escapes in #model.serde",
       )
   }
   match value {
     String(value) => value
-    _ => raise GenerateError("\{context}: invalid #custom.serde string literal")
+    _ => raise GenerateError("\{context}: invalid #model.serde string literal")
   }
 }
 
@@ -555,7 +555,7 @@ fn parse_definition(decl : @syntax.TypeDecl) -> Definition? raise GenerateError 
         for field in fields {
           if serde_options(field.attrs, field_attributes()) is Some(_) {
             serde_error(
-              context, "field #custom.serde requires #custom.serde on its type",
+              context, "field #model.serde requires #model.serde on its type",
             )
           }
         }
@@ -563,7 +563,7 @@ fn parse_definition(decl : @syntax.TypeDecl) -> Definition? raise GenerateError 
         for variant in variants {
           if serde_options(variant.attrs, ["rename"]) is Some(_) {
             serde_error(
-              context, "variant #custom.serde requires #custom.serde on its type",
+              context, "variant #model.serde requires #model.serde on its type",
             )
           }
         }
@@ -575,7 +575,7 @@ fn parse_definition(decl : @syntax.TypeDecl) -> Definition? raise GenerateError 
   for param in decl.params {
     guard param.name is Some(param_name) else {
       raise GenerateError(
-        "\{param.loc}: #custom.serde requires a named type parameter",
+        "\{param.loc}: #model.serde requires a named type parameter",
       )
     }
     params.push(param_name)
@@ -591,7 +591,7 @@ fn parse_definition(decl : @syntax.TypeDecl) -> Definition? raise GenerateError 
       Ident(name="FromJson") | Dot(id="FromJson", ..) if encode_only => ()
       Ident(name="ToJson" | "FromJson") | Dot(id="ToJson" | "FromJson", ..) =>
         serde_error(
-          context, "#custom.serde conflicts with a JSON deriving directive",
+          context, "#model.serde conflicts with a JSON deriving directive",
         )
       _ => ()
     }
@@ -713,13 +713,13 @@ fn parse_definition(decl : @syntax.TypeDecl) -> Definition? raise GenerateError 
     }
     _ =>
       raise GenerateError(
-        "\{context}: #custom.serde only supports structs and enums",
+        "\{context}: #model.serde only supports structs and enums",
       )
   }
 }
 
 ///|
-/// Parse MoonBit source and validate the declarations marked by `#custom.serde`.
+/// Parse MoonBit source and validate the declarations marked by `#model.serde`.
 pub fn parse(
   source : String,
   name~ : String = "<input>",

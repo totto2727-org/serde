@@ -2,20 +2,20 @@
 test "official AST selects marked types and preserves nested options and aliases" {
   let source =
     #|struct Ignored { x : Int }
-    #|// #custom.serde
+    #|// #model.serde
     #|struct AlsoIgnored { y : Int }
     #|#serde
     #|struct Unqualified { y : Int }
     #|#other.serde
     #|struct WrongNamespace { y : Int }
-    #|#custom.serde(rename_all = "camelCase", deny_unknown_fields)
+    #|#model.serde(rename_all = "camelCase", deny_unknown_fields)
     #|struct Event {
     #|  event_id : Int
-    #|  #custom.serde(rename = "nested", aliases = ["old_name", "legacy"], skip_serializing_if = "Option::is_none")
+    #|  #model.serde(rename = "nested", aliases = ["old_name", "legacy"], skip_serializing_if = "Option::is_none")
     #|  nested_value : Option[String?]
-    #|  #custom.serde(default)
+    #|  #model.serde(default)
     #|  count : Int
-    #|  #custom.serde(skip)
+    #|  #model.serde(skip)
     #|  ignored_value : Int
     #|}
   let definitions = @serde_codegen.parse(source) catch {
@@ -42,11 +42,11 @@ test "official AST selects marked types and preserves nested options and aliases
 ///|
 test "attribute key escapes are decoded before comparing paths" {
   let source =
-    #|#custom.serde
+    #|#model.serde
     #|struct Escaped {
-    #|  #custom.serde(rename="quote\"", aliases=["tab\t", "\u0061"])
+    #|  #model.serde(rename="quote\"", aliases=["tab\t", "\u0061"])
     #|  first : Int
-    #|  #custom.serde(path=["root", "line\n"])
+    #|  #model.serde(path=["root", "line\n"])
     #|  second : String
     #|}
   let definitions = @serde_codegen.parse(source)
@@ -56,9 +56,9 @@ test "attribute key escapes are decoded before comparing paths" {
   assert_eq(record.fields[1].path, ["root", "line\n"])
   assert_invalid_serde(
     (
-      #|#custom.serde
+      #|#model.serde
       #|struct Collision {
-      #|  #custom.serde(rename="\u0061")
+      #|  #model.serde(rename="\u0061")
       #|  b : Int
       #|  a : Int
       #|}
@@ -70,11 +70,11 @@ test "attribute key escapes are decoded before comparing paths" {
 ///|
 test "official AST distinguishes unit, labeled, and positional enum variants" {
   let source =
-    #|#custom.serde(tag = "kind", content = "payload", rename_all = "snake_case")
+    #|#model.serde(tag = "kind", content = "payload", rename_all = "snake_case")
     #|enum Event {
     #|  NotStarted
     #|  NewHTTPEvent(code~ : Int, message~ : String?)
-    #|  #custom.serde(rename = "tuple")
+    #|  #model.serde(rename = "tuple")
     #|  Unnamed(Int, String)
     #|}
   let definitions = @serde_codegen.parse(source) catch {
@@ -130,16 +130,16 @@ test "invalid flatten and codec hooks report source errors" {
       ("flatten, rename=\"keys\"", "Json", "flatten cannot be combined"),
     ] {
     assert_invalid_serde(
-      "#custom.serde\nstruct S {\n#custom.serde(\{attributes})\nx : \{ty}\n}",
+      "#model.serde\nstruct S {\n#model.serde(\{attributes})\nx : \{ty}\n}",
       reason,
     )
   }
   assert_invalid_serde(
-    "#custom.serde(deny_unknown_fields)\nstruct S {\n#custom.serde(flatten)\nx : Map[String, Json]\n}",
+    "#model.serde(deny_unknown_fields)\nstruct S {\n#model.serde(flatten)\nx : Map[String, Json]\n}",
     "flatten cannot be combined with deny_unknown_fields",
   )
   assert_invalid_serde(
-    "#custom.serde\nstruct S {\n#custom.serde(flatten)\nx : Map[String, Json]\n#custom.serde(flatten)\ny : Map[String, Json]\n}",
+    "#model.serde\nstruct S {\n#model.serde(flatten)\nx : Map[String, Json]\n#model.serde(flatten)\ny : Map[String, Json]\n}",
     "only one flatten field",
   )
 }
@@ -148,9 +148,9 @@ test "invalid flatten and codec hooks report source errors" {
 test "field callables use the codec hook name syntax" {
   let generated = @serde_codegen.generate(
     (
-      #|#custom.serde
+      #|#model.serde
       #|struct HookFields {
-      #|  #custom.serde(default="@helpers.Factory::make", skip_serializing_if="@helpers.omit")
+      #|  #model.serde(default="@helpers.Factory::make", skip_serializing_if="@helpers.omit")
       #|  value : Int
       #|}
     ),
@@ -164,62 +164,61 @@ test "invalid serde options fail instead of producing codecs" {
   for
     (source, reason) in [
       (
-        "#custom.serde(rename_all: \"snake_case\")\nstruct S { x : Int }", "malformed #custom.serde",
+        "#model.serde(rename_all: \"snake_case\")\nstruct S { x : Int }", "malformed #model.serde",
       ),
       (
-        "#custom.serde(typo)\nstruct S { x : Int }", "unknown #custom.serde option",
+        "#model.serde(typo)\nstruct S { x : Int }", "unknown #model.serde option",
       ),
       (
-        "#custom.serde(deny_unknown_fields, deny_unknown_fields)\nstruct S { x : Int }",
-        "repeated #custom.serde option",
+        "#model.serde(deny_unknown_fields, deny_unknown_fields)\nstruct S { x : Int }",
+        "repeated #model.serde option",
       ),
       (
-        "#custom.serde\n#custom.serde\nstruct S { x : Int }", "repeated #custom.serde attribute",
+        "#model.serde\n#model.serde\nstruct S { x : Int }", "repeated #model.serde attribute",
       ),
       (
-        "#custom.serde\nstruct S {\n#custom.serde(aliases = \"y\")\nx : Int\ny : Int\n}",
+        "#model.serde\nstruct S {\n#model.serde(aliases = \"y\")\nx : Int\ny : Int\n}",
         "duplicate wire key: y",
       ),
       (
-        "#custom.serde\nstruct S {\n#custom.serde(skip_serializing_if = \"Option::is_none\")\nx : Int\n}",
+        "#model.serde\nstruct S {\n#model.serde(skip_serializing_if = \"Option::is_none\")\nx : Int\n}",
         "on an Option field",
       ),
       (
-        "#custom.serde(tag=\"type\")\nstruct S(Int)", "tag is not allowed on a tuple struct",
+        "#model.serde(tag=\"type\")\nstruct S(Int)", "tag is not allowed on a tuple struct",
       ),
       (
-        "#custom.serde(deny_unknown_fields)\nstruct S(Int, String)", "deny_unknown_fields is not allowed on a tuple struct",
+        "#model.serde(deny_unknown_fields)\nstruct S(Int, String)", "deny_unknown_fields is not allowed on a tuple struct",
       ),
       (
-        "#custom.serde\nstruct S { x : Int } derive(ToJson)", "conflicts with a JSON deriving directive",
+        "#model.serde\nstruct S { x : Int } derive(ToJson)", "conflicts with a JSON deriving directive",
       ),
       (
-        "#custom.serde(tag = \"kind\", content = \"kind\")\nenum E { V }", "incompatible tag",
+        "#model.serde(tag = \"kind\", content = \"kind\")\nenum E { V }", "incompatible tag",
       ),
       (
-        "#custom.serde(tag = \"kind\")\nenum E { V(kind~ : Int) }", "duplicate wire key: kind",
+        "#model.serde(tag = \"kind\")\nenum E { V(kind~ : Int) }", "duplicate wire key: kind",
       ),
       (
-        "#custom.serde(tag = \"kind\")\nenum E { V(Int) }", "require decode_only and one non-optional payload",
+        "#model.serde(tag = \"kind\")\nenum E { V(Int) }", "require decode_only and one non-optional payload",
       ),
       (
-        "#custom.serde(tag = \"kind\", decode_only)\nenum E { V(Int, String) }",
-        "require decode_only and one non-optional payload",
+        "#model.serde(tag = \"kind\", decode_only)\nenum E { V(Int, String) }", "require decode_only and one non-optional payload",
       ),
       (
-        "#custom.serde(tag = \"kind\", decode_only)\nenum E { V(Int?) }", "require decode_only and one non-optional payload",
+        "#model.serde(tag = \"kind\", decode_only)\nenum E { V(Int?) }", "require decode_only and one non-optional payload",
       ),
       (
-        "#custom.serde(decode_only)\nstruct S { x : Int } derive(FromJson)", "conflicts with a JSON deriving directive",
+        "#model.serde(decode_only)\nstruct S { x : Int } derive(FromJson)", "conflicts with a JSON deriving directive",
       ),
       (
-        "#custom.serde(encode_only)\nstruct S { x : Int } derive(ToJson)", "conflicts with a JSON deriving directive",
+        "#model.serde(encode_only)\nstruct S { x : Int } derive(ToJson)", "conflicts with a JSON deriving directive",
       ),
       (
-        "#custom.serde(encode_only, decode_only)\nstruct S(Int)", "encode_only and decode_only are mutually exclusive",
+        "#model.serde(encode_only, decode_only)\nstruct S(Int)", "encode_only and decode_only are mutually exclusive",
       ),
       (
-        "#custom.serde\nenum E { V(Int, name~ : Int) }", "mixed named and positional",
+        "#model.serde\nenum E { V(Int, name~ : Int) }", "mixed named and positional",
       ),
     ] {
     assert_invalid_serde(source, reason)
@@ -231,25 +230,25 @@ test "fixed paths reject ambiguous or malformed schema mappings" {
   for
     (source, reason) in [
       (
-        "#custom.serde\nstruct S {\n#custom.serde(path=[])\nx : Int\n}", "non-empty array of string keys",
+        "#model.serde\nstruct S {\n#model.serde(path=[])\nx : Int\n}", "non-empty array of string keys",
       ),
       (
-        "#custom.serde\nstruct S {\n#custom.serde(path=[false])\nx : Int\n}", "non-empty array of string keys",
+        "#model.serde\nstruct S {\n#model.serde(path=[false])\nx : Int\n}", "non-empty array of string keys",
       ),
       (
-        "#custom.serde\nstruct S {\n#custom.serde(path=[\"a\"], rename=\"b\")\nx : Int\n}",
+        "#model.serde\nstruct S {\n#model.serde(path=[\"a\"], rename=\"b\")\nx : Int\n}",
         "cannot be combined",
       ),
       (
-        "#custom.serde\nstruct S {\n#custom.serde(path=[\"a\", \"x\"])\nx : Int\n#custom.serde(path=[\"a\", \"x\"])\ny : Int\n}",
+        "#model.serde\nstruct S {\n#model.serde(path=[\"a\", \"x\"])\nx : Int\n#model.serde(path=[\"a\", \"x\"])\ny : Int\n}",
         "conflicting JSON field paths",
       ),
       (
-        "#custom.serde\nstruct S {\n#custom.serde(path=[\"a\", \"x\"])\nx : Int\na : Int\n}",
+        "#model.serde\nstruct S {\n#model.serde(path=[\"a\", \"x\"])\nx : Int\na : Int\n}",
         "conflicting JSON field paths",
       ),
       (
-        "#custom.serde\nstruct S {\n#custom.serde(aliases=\"a\")\nx : Int\n#custom.serde(path=[\"a\", \"b\"])\ny : Int\n}",
+        "#model.serde\nstruct S {\n#model.serde(aliases=\"a\")\nx : Int\n#model.serde(path=[\"a\", \"b\"])\ny : Int\n}",
         "conflicting JSON field paths",
       ),
     ] {

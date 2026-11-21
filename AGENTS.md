@@ -12,7 +12,7 @@ Keep the template's CI triggers and shared action references unless a project re
 
 - `src/serde/`: runtime helpers called by generated JSON implementations.
 - `src/serde-codegen/`: attribute validation and source generation from the official MoonBit AST.
-- `src/garde/` and `src/garde-codegen/`: independent value validation and the `#custom.garde` generator. `model_gen` emits codecs and validators in one run.
+- `src/garde/` and `src/garde-codegen/`: independent value validation and the `#model.garde` generator. `model_gen` emits codecs and validators in one run.
 - `src/cmd/model_gen/`: Admiral command for native, linear Wasm, and JavaScript on Node.js that reads MoonBit source and writes a codec file. It is a separate Moon module so users of the codec library do not need Admiral. `package.nix` uses checksum-pinned Mooncakes archives without changing the local registry cache. Admiral is resolved from the pinned Mooncakes index.
 - `src/test/serde/`: round-trip tests that compile and run the generated codecs.
 - `src/test/garde/`: test both generators together and verify that JSON decoding does not run validation.

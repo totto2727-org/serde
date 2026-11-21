@@ -2,16 +2,16 @@
 test "reject unsupported garde codec declarations" {
   for
     (source, expected) in [
-      ("#custom.garde(codec)\nstruct S(String)", "requires a record struct"),
+      ("#model.garde(codec)\nstruct S(String)", "requires a record struct"),
       (
-        "#custom.garde(codec, context=C)\nstruct S { value : String }", "does not support contextual validation",
+        "#model.garde(codec, context=C)\nstruct S { value : String }", "does not support contextual validation",
       ),
       (
-        "#custom.garde\nstruct S {\n  #custom.garde(url, phone_number)\n  value : String\n}",
+        "#model.garde\nstruct S {\n  #model.garde(url, phone_number)\n  value : String\n}",
         "supports one URL, IP, or phone number format per field",
       ),
       (
-        "#custom.garde(codec, validate_only)\nstruct S { value : String }", "unknown, invalid, or repeated #custom.garde option",
+        "#model.garde(codec, validate_only)\nstruct S { value : String }", "unknown, invalid, or repeated #model.garde option",
       ),
     ] {
     let result = Ok(@garde_codegen.generate_many([("codec.mbt", source)])) catch {
@@ -25,11 +25,11 @@ test "reject unsupported garde codec declarations" {
 ///|
 test "codec bindings use field names rather than positions" {
   let source =
-    #|#custom.garde
+    #|#model.garde
     #|struct Endpoint {
-    #|  #custom.garde(url)
+    #|  #model.garde(url)
     #|  url : String
-    #|  #custom.garde(ip)
+    #|  #model.garde(ip)
     #|  allowed_ip : String?
     #|}
   let generated = @garde_codegen.generate_many([("endpoint.mbt", source)])
@@ -40,9 +40,9 @@ test "codec bindings use field names rather than positions" {
 ///|
 test "validate_only keeps validation and omits the codec" {
   let source =
-    #|#custom.garde(validate_only)
+    #|#model.garde(validate_only)
     #|struct Endpoint {
-    #|  #custom.garde(url)
+    #|  #model.garde(url)
     #|  url : String
     #|}
   let generated = @garde_codegen.generate_many([("endpoint.mbt", source)])
@@ -55,7 +55,7 @@ test "validate_only keeps validation and omits the codec" {
 test "reject invalid rules at the field's source location" {
   for
     (attribute, field_type, expected) in [
-      ("length(min=2)", "String", "malformed #custom.garde"),
+      ("length(min=2)", "String", "malformed #model.garde"),
       ("length(min=\"-1\")", "String", "bounds must be non-negative"),
       (
         "range(min=\"1 + 2\")", "Int", "must be a quoted MoonBit numeric literal",
@@ -82,7 +82,7 @@ test "reject invalid rules at the field's source location" {
         "inner(matches(value))", "Array[String]", "matches is only supported directly on record fields",
       ),
     ] {
-    let source = "#custom.garde\nstruct S {\n  #custom.garde(\{attribute})\n  value : \{field_type}\n}\n"
+    let source = "#model.garde\nstruct S {\n  #model.garde(\{attribute})\n  value : \{field_type}\n}\n"
     let result = Ok(@garde_codegen.generate_many([("rules.mbt", source)])) catch {
       @garde_codegen.GenerateError(message) => Err(message)
     }
@@ -97,26 +97,25 @@ test "reject invalid payload selectors and unattached enum attributes" {
   for
     (source, expected) in [
       (
-        "#custom.garde(field(index=\"0\", matches(other)))\nstruct S(String)", "matches is only supported directly on record fields",
+        "#model.garde(field(index=\"0\", matches(other)))\nstruct S(String)", "matches is only supported directly on record fields",
       ),
       (
-        "#custom.garde(field(index=\"0\", skip), field(index=\"1\", ascii))\nstruct S(String)",
+        "#model.garde(field(index=\"0\", skip), field(index=\"1\", ascii))\nstruct S(String)",
         "no payload field for selector index:1",
       ),
       (
-        "#custom.garde(field(index=\"0\", skip), field(index=\"0\", ascii))\nstruct S(String)",
+        "#model.garde(field(index=\"0\", skip), field(index=\"0\", ascii))\nstruct S(String)",
         "repeated garde field selector: index:0",
       ),
       (
-        "#custom.garde\nenum E {\n  #custom.garde(field(name=\"missing\", ascii))\n  Item\n}",
+        "#model.garde\nenum E {\n  #model.garde(field(name=\"missing\", ascii))\n  Item\n}",
         "no payload field for selector name:missing",
       ),
       (
-        "enum E {\n  #custom.garde(skip)\n  Item(String)\n}", "variant #custom.garde requires #custom.garde on its enum",
+        "enum E {\n  #model.garde(skip)\n  Item(String)\n}", "variant #model.garde requires #model.garde on its enum",
       ),
       (
-        "#custom.garde(bounds(U, [Length]), allow_unvalidated)\nstruct S[T](T)",
-        "unknown or repeated type parameter in bounds: U",
+        "#model.garde(bounds(U, [Length]), allow_unvalidated)\nstruct S[T](T)", "unknown or repeated type parameter in bounds: U",
       ),
     ] {
     let result = Ok(@garde_codegen.generate_many([("payloads.mbt", source)])) catch {
@@ -130,7 +129,7 @@ test "reject invalid payload selectors and unattached enum attributes" {
 
 ///|
 test "reject an unmarked field unless the struct opts in" {
-  let source = "#custom.garde\nstruct S { value : Int }\n"
+  let source = "#model.garde\nstruct S { value : Int }\n"
   let result = Ok(@garde_codegen.generate_many([("rules.mbt", source)])) catch {
     @garde_codegen.GenerateError(message) => Err(message)
   }

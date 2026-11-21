@@ -1,6 +1,6 @@
 # model_gen
 
-`model_gen` reads `#custom.serde` and `#custom.garde` attributes from the MoonBit source files you list.
+`model_gen` reads `#model.serde` and `#model.garde` attributes from the MoonBit source files you list.
 It generates JSON codecs and validators without decoding or validating values.
 
 ## Usage

@@ -6,7 +6,7 @@ async fn cli(dir : String, argv : ArrayView[String]) -> (Int32, String, String) 
 
 ///|
 async fn model(dir : String, file : String, name : String) -> Unit {
-  @fs.write_file("\{dir}/\{file}", "#custom.serde\nstruct \{name}(Int)\n")
+  @fs.write_file("\{dir}/\{file}", "#model.serde\nstruct \{name}(Int)\n")
 }
 
 ///|
@@ -26,7 +26,7 @@ async test "model_gen generates codecs and validators together without overwriti
   defer @fs.rmdir(dir, recursive=true)
   @fs.write_file(
     "\{dir}/models.mbt",
-    "#custom.serde\n#custom.garde\nstruct Both {\n  #custom.garde(range(min=\"0\"))\n  value : Int\n}\n",
+    "#model.serde\n#model.garde\nstruct Both {\n  #model.garde(range(min=\"0\"))\n  value : Int\n}\n",
   )
   let argv = ["models.mbt", "--output", "serde.generated.mbt"]
   assert_eq(cli(dir, argv[:]), (0, "", ""))
@@ -52,7 +52,7 @@ async test "model_gen generates codecs and validators together without overwriti
 async fn guarded_model(dir : String, file : String, name : String) -> Unit {
   @fs.write_file(
     "\{dir}/\{file}",
-    "#custom.garde(field(index=\"0\", ascii))\nstruct \{name}(String)\n",
+    "#model.garde(field(index=\"0\", ascii))\nstruct \{name}(String)\n",
   )
 }
 
@@ -95,7 +95,7 @@ async test "model_gen refreshes validators using only the listed files" {
   assert_false(codecs.contains("@garde.Validate"))
   @fs.write_file(
     "\{dir}/broken.mbt",
-    "#custom.garde(field(index=\"0\", required))\nstruct Broken(Int)\n",
+    "#model.garde(field(index=\"0\", required))\nstruct Broken(Int)\n",
   )
   let (status, _, err) = cli(dir, [
     "codec.mbt", "broken.mbt", "--output", "serde.generated.mbt",
@@ -137,7 +137,7 @@ async test "model_gen - no overwrite and located errors on invalid sources" {
   assert_eq(@fs.read_file("\{dir}/handwritten.mbt").text(), "handwritten\n")
   @fs.write_file(
     "\{dir}/broken.mbt",
-    "#custom.serde\nstruct Broken {\n  #custom.serde(path=[])\n  value : Int\n}\n",
+    "#model.serde\nstruct Broken {\n  #model.serde(path=[])\n  value : Int\n}\n",
   )
   let (status, _, err) = cli(dir, [
     "broken.mbt", "--output", "broken.generated.mbt",

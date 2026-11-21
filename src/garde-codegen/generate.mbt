@@ -44,15 +44,15 @@ fn options(
   for attr in attrs {
     let at = Show::to_string(attr.loc)
     let props = match attr.parsed {
-      Some(Ident({ qual: Some("custom"), name: "garde", })) => @list.List([])
-      Some(Apply({ qual: Some("custom"), name: "garde", }, props)) => props
-      None if attr.raw.strip_prefix("#custom.garde") is Some(suffix) &&
+      Some(Ident({ qual: Some("model"), name: "garde", })) => @list.List([])
+      Some(Apply({ qual: Some("model"), name: "garde", }, props)) => props
+      None if attr.raw.strip_prefix("#model.garde") is Some(suffix) &&
         suffix.trim_start().has_prefix("(") =>
-        raise GenerateError("\{at}: malformed #custom.garde attribute")
+        raise GenerateError("\{at}: malformed #model.garde attribute")
       _ => continue
     }
     if result is Some(_) {
-      fail(at, "repeated #custom.garde attribute")
+      fail(at, "repeated #model.garde attribute")
     }
     result = Some((at, props))
   }
